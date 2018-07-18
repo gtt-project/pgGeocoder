@@ -38,6 +38,13 @@ create index address3 on address(ooaza);
 create index address4 on address(chiban);
 
 --
+-- creating index on places
+--
+create index places1 on places(owner);
+create index places2 on places(category);
+create index places3 on places(name);
+
+--
 -- for Reverse Geocoding
 --
 create index address_o_g_idx on address_o using gist( geog );
@@ -57,6 +64,11 @@ create index boundary_o2 on boundary_o(shikuchoson);
 create index boundary_o3 on boundary_o(ooaza);
 create index boundary_o4 on boundary_o(code);
 create index boundary_o_g_idx on boundary_o using gist( geom );
+
+--
+-- for Reverse Geocoding in Places 
+--
+create index places_g_idx on places using gist( geog );
 
 --
 -- Vacuuming everything
