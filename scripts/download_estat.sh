@@ -4,74 +4,106 @@
 #
 # Usage:
 # ------
-#	./download_estat.sh [Census Year]
+#  bash scripts/download_estat.sh [Census Year]
 #
 # Examples:
 # ---------
-#	./download.sh A002005212015
-#	./download.sh A002005212010
-#	./download.sh A002005212005
-#	./download.sh A002005512000
+#  bash scripts/download_estat.sh 2015
 #
 # ------------------------------------------------------------------------------
 
 set -e # Exit script immediately on first error.
 #set -x # Print commands and their arguments as they are executed.
 
+YEAR_TCODES=(
+  "2015 A002005212015"
+  "2010 A002005212010"
+  "2005 A002005212005"
+  "2000 A002005512000"
+)
 
-TCODE=${1:-"A002005212015"}
-mkdir -p "${TCODE}"
+function exit_with_usage()
+{
+  echo "Usage: bash scripts/download_estat.sh [Census Year (ex. 2019)]" 1>&2
+  for i in "${YEAR_TCODES[@]}"; do
+    year_tcode=(`echo "${i}"`)
+    year="${year_tcode[0]}"
+    echo -e "\t${year}" 1>&2
+  done
+  exit 1
+}
 
-URL="https://www.e-stat.go.jp/gis/statmap-search/data"
+if [ $# -ne 1 ]; then
+  exit_with_usage
+fi
+
+found=0
+for i in "${YEAR_TCODES[@]}"; do
+  year_tcode=(`echo "${i}"`)
+  if [ "$1" == "${year_tcode[0]}" ]; then
+    year="${year_tcode[0]}"
+    tcode="${year_tcode[1]}"
+    found=1
+    break
+  fi
+done
+
+if ((!found)); then
+  exit_with_usage
+fi
+
+echo "year:${year}, tcode:${tcode}"
+
+SCRIPT_DIR=$(cd $(dirname $0); pwd)
+OUT_ROOT_DIR=${SCRIPT_DIR}/../data/estat
+OUT_YEAR_DIR=${OUT_ROOT_DIR}/${year}
+OUT_ZIP_DIR=${OUT_YEAR_DIR}/zip
+OUT_SHP_DIR=${OUT_YEAR_DIR}/shp
+OUT_SQL_DIR=${OUT_YEAR_DIR}/sql
+
+mkdir -p ${OUT_YEAR_DIR}
+mkdir -p ${OUT_ZIP_DIR}
+mkdir -p ${OUT_SHP_DIR}
+mkdir -p ${OUT_SQL_DIR}
+
+BASE_URL="https://www.e-stat.go.jp/gis/statmap-search/data"
 
 # Download 47 prefecture shapes
-for i in $(seq -f "%02g" 1 47); do
-  # echo "Downloading prefecture ${i} in ${TCODE} ..."
-  LINK="${URL}?dlserveyId=${TCODE}&code=${i}&coordSys=1&format=shape&downloadType=5"
-  FILE="${TCODE}/pref_${i}.zip"
-  wget -O "${FILE}" "${LINK}"
-  sleep 5
+for pref_code in $(seq -w 1 47); do
+  # echo "Downloading prefecture ${i} in ${tcode} ..."
+  url="${BASE_URL}?dlserveyId=${tcode}&code=${pref_code}&coordSys=1&format=shape&downloadType=5"
+  zip="${OUT_ZIP_DIR}/${tcode}DDSWC${pref_code}.zip"
+  if [ ! -e "${zip}" ] ; then
+    curl "${url}" > "${zip}"
+  fi
+  unzip -jo ${zip} -d ${OUT_SHP_DIR}
 done
 
-# Unzip SHP files
-echo "============================================================="
-echo "Unzipping SHP files "
-
-DATA=`find ./${TCODE}/ -name '*.zip'`
-
+# Generate SQL files
 counter=0
-for i in $DATA
-do
-	unzip -q -o -d ${TCODE}/shp $i
-	let counter=counter+1
-	echo -ne "."
+#for shp in `find ${OUT_SHP_DIR} -name '*.shp'`; do
+for shp in ${OUT_SHP_DIR}/*.shp; do
+  sql=${OUT_SQL_DIR}/`basename ${shp} .shp`.sql
+  #echo "${shp} => ${sql}"
+  if [ ${counter} -eq 0 ]; then
+    create_table="YES"
+    drop_table="IF_EXISTS"
+  else
+    create_table="NO"
+    drop_table="NO"
+  fi
+  ogr2ogr -s_srs EPSG:4612 \
+          -t_srs EPSG:4326 \
+          -f PGDump \
+          ${sql} \
+          ${shp} \
+          -lco GEOMETRY_NAME=geog \
+          -lco FID=fid \
+          -lco CREATE_TABLE=${create_table} \
+          -lco DROP_TABLE=${drop_table} \
+          -nln public.estat_${year}
+  echo -ne "."
+  let counter=counter+1
 done
 
-echo -e "\nDone: ${counter} SHP files unzipped!"
-
-# Merge SHP files
-echo "============================================================="
-echo "Merging SHP files"
-
-DATA=`find ./${TCODE}/shp -name '*.shp'`
-FILE="./${TCODE}/japan.shp"
-rm -f "./${TCODE}/japan.*"
-
-counter=0
-for i in $DATA
-do
-	export SHAPE_ENCODING="UTF-8"
-
-	if [ -f ${FILE} ]
-	then
-		ogr2ogr -f "ESRI Shapefile" -update -append ${FILE} "${i}"
-	else
-		ogr2ogr -f "ESRI Shapefile" ${FILE} "${i}" -t_srs EPSG:4326 -lco ENCODING=SJIS
-	fi
-
-	echo -ne "."
-	let counter=counter+1
-done
-
-echo -e "\nDone: ${counter} SHP files merged!"
-echo "============================================================="
+echo -e "\nDone: ${counter} SQL files generated!"
