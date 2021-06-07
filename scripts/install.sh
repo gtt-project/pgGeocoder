@@ -3,7 +3,10 @@
 
 source .env
 
-# Create basic tables
+# Adding PostGIS extension support
+psql -U ${DBROLE} -d ${DBNAME} -c "create extension postgis;"
+
+# Creating the necessary pgGeocoder Tables
 psql -U ${DBROLE} -d ${DBNAME} -f ./sql/createTables.sql
 
 # Load geocoder function
