@@ -11,13 +11,13 @@ YEAR_VERSIONS=(
   "2018 H30 12.0b 17.0a"
   "2017 H29 11.0b 16.0a"
   "2016 H28 10.0b 15.0a"
-  "2015 H27 9.0b 14.0a"
-  "2014 H26 8.0b 13.0a"
-  "2013 H25 7.0b 12.0a"
-  "2012 H24 6.0b 11.0a"
-  "2011 H23 5.0b  9.0a"
-  "2010 H22 4.0b  8.0a"
-  "2009 H21 3.0b  7.0a"
+  "2015 H27 09.0b 14.0a"
+  "2014 H26 08.0b 13.0a"
+  "2013 H25 07.0b 12.0a"
+  "2012 H24 06.0b 11.0a"
+  "2011 H23 05.0b 10.0a"
+  "2010 H22 04.0b 09.0a"
+  "2009 H21 03.0b 08.0a"
 )
 
 function exit_with_usage()
@@ -84,14 +84,14 @@ for pref_code in `seq -w 1 47` ; do
   if [ ! -e "${oaza_zip}" ] ; then
     curl ${oaza_url} > ${oaza_zip}
   fi
-  unzip -j ${oaza_zip} '*.[cC][sS][vV]' -d ${OUT_OAZA_CSV_DIR}
+  unzip -p ${oaza_zip} '*.[cC][sS][vV]' | iconv -f cp932 -t utf8 > ${OUT_OAZA_CSV_DIR}/${pref_code}_${year}.csv
 
   gaiku_url="https://nlftp.mlit.go.jp/isj/dls/data/${gaiku_ver}/${pref_code}000-${gaiku_ver}.zip"
   gaiku_zip="${OUT_GAIKU_ZIP_DIR}/${pref_code}000-${gaiku_ver}.zip"
   if [ ! -e "${gaiku_zip}" ] ; then
     curl ${gaiku_url} > ${gaiku_zip}
   fi
-  unzip -jo ${gaiku_zip} '*.[cC][sS][vV]' -d ${OUT_GAIKU_CSV_DIR}
+  unzip -p ${gaiku_zip} '*.[cC][sS][vV]' | iconv -f cp932 -t utf8 > ${OUT_GAIKU_CSV_DIR}/${pref_code}_${year}.csv
 done
 
 echo -e "\nDone!"
