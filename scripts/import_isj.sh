@@ -56,8 +56,17 @@ for csv in ${IN_GAIKU_CSV_DIR}/*.csv ; do
   psql -U ${DBROLE} -d ${DBNAME} -c "\copy ${GAIKU_TABLE} from '${csv}' with delimiter ',' csv header;"
 done
 
-# Convert ISJ datas to pgGeocoder adress tables
+# Convert ISJ datas to pgGeocoder address tables
 psql -U ${DBROLE} -d ${DBNAME} -f ./sql/isj/convertISJDatas.sql
+
+# Run the maintTables.sql to create proper indexes to the pgGeocoder Tables
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/maintTables.sql
+
+# Load geocoder function
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/pgGeocoder.sql
+
+# Load reverse_geocoder function
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/pgReverseGeocoder.sql
 
 # Normalize oaza data
 psql -U ${DBROLE} -d ${DBNAME} -c "update address_o set tr_ooaza = normalizeAddr(ooaza);"
