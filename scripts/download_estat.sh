@@ -86,12 +86,15 @@ for shp in ${OUT_SHP_DIR}/*.shp; do
   sql=${OUT_SQL_DIR}/`basename ${shp} .shp`.sql
   #echo "${shp} => ${sql}"
   if [ ${counter} -eq 0 ]; then
+    create_schema="YES"
     create_table="YES"
     drop_table="IF_EXISTS"
   else
+    create_schema="NO"
     create_table="NO"
     drop_table="NO"
   fi
+  # ogrinfo --format PGDump
   ogr2ogr -s_srs EPSG:4612 \
           -t_srs EPSG:4326 \
           -f PGDump \
@@ -99,9 +102,11 @@ for shp in ${OUT_SHP_DIR}/*.shp; do
           ${shp} \
           -lco GEOMETRY_NAME=geog \
           -lco FID=fid \
+          -lco SCHEMA=estat \
+          -lco CREATE_SCHEMA=${create_schema} \
           -lco CREATE_TABLE=${create_table} \
           -lco DROP_TABLE=${drop_table} \
-          -nln public.estat_${year}
+          -nln estat.census_${year}
   echo -ne "."
   let counter=counter+1
 done
