@@ -31,7 +31,7 @@ fi
 # Import sql files
 echo "Import sql files"
 for sql in ${IN_SQL_DIR}/*.sql ; do
-  psql -U ${DBROLE} -d ${DBNAME} -f ${sql}
+  psql -U ${DBROLE} -d ${DBNAME} -q -f ${sql}
 done
 
 echo -e "\nDone!"

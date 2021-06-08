@@ -1,4 +1,19 @@
 --
+-- Adding geometry column to temporary Gaiku/Oaza tables
+--
+alter table isj.gaiku add column geom geometry('POINT', 4326);
+update isj.gaiku set geom = st_setsrid(st_makepoint(lon, lat), 4326);
+create index gaiku_geom_idx on isj.gaiku using gist(geom);
+
+alter table isj.gaiku_with_koaza add column geom geometry('POINT', 4326);
+update isj.gaiku_with_koaza set geom = st_setsrid(st_makepoint(lon, lat), 4326);
+create index gaiku_with_koaza_geom_idx on isj.gaiku_with_koaza using gist(geom);
+
+alter table isj.oaza add column geom geometry('POINT', 4326);
+update isj.oaza set geom = st_setsrid(st_makepoint(lon, lat), 4326);
+create index oaza_geom_idx on isj.oaza using gist(geom);
+
+--
 -- Inserting the Gaiku data into address Table
 --
 insert into address (todofuken, shikuchoson, ooaza, chiban, lat, lon)
