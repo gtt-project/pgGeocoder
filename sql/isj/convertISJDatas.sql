@@ -16,17 +16,17 @@ create index oaza_geom_idx on isj.oaza using gist(geom);
 --
 -- Inserting the Gaiku data into address Table
 --
-insert into address (todofuken, shikuchoson, ooaza, chiban, lat, lon)
-  select t_name, s_name, o_name, g_code, lat, lon from isj.gaiku;
+insert into address (todofuken, shikuchoson, ooaza, chiban, lat, lon, geog)
+  select pref_name, city_name, oaza_name, gaiku_code, lat, lon, geom::geography from isj.gaiku;
 
-insert into address (todofuken, shikuchoson, ooaza, chiban, lat, lon)
-  select t_name, s_name, o_name, g_code, lat, lon from isj.gaiku_with_koaza;
+insert into address (todofuken, shikuchoson, ooaza, chiban, lat, lon, geog)
+  select pref_name, city_name, oaza_name, gaiku_code, lat, lon, geom::geography from isj.gaiku_with_koaza;
 
 --
 -- Inserting the Oaza data into address_o Table
 --
 insert into address_o (todofuken, shikuchoson, ooaza, lat, lon)
-  select t_name, s_name, o_name, lat, lon from isj.oaza;
+  select pref_name, city_name, oaza_name, lat, lon from isj.oaza;
 
 --
 -- Creating a temporary Shikuchoson table from the Oaza table
