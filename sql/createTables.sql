@@ -1,3 +1,5 @@
+create extension postgis;
+
 create table address_t (todofuken varchar(60),lat float,lon float,
     ttable varchar(40));
 
@@ -10,4 +12,4 @@ create table address_o (todofuken varchar(60),shikuchoson varchar(60),
 
 create table address   (todofuken varchar(60),shikuchoson varchar(60),
     ooaza varchar(60), chiban varchar(60),
-    lat float, lon float );
+    lat float, lon float, geog geography('POINT') );
