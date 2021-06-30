@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgis/postgis:11-2.5
+    ports:
+      - '54321:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DBPASS}
+      - POSTGRES_USER=${DBROLE}
+      - POSTGRES_DB=${DBNAME}
+  importer:
+    build:
+      context: ./
+    volumes:
+      - ./data:/geocoder/data
+    environment:
+      - PGUSER=${DBROLE}
+      - PGDATABASE=${DBNAME}
+      - PGHOST=${DBHOST}
+    depends_on:
+      - postgres
+    entrypoint:
+      "/bin/bash"
+    command:
+      ""
+    tty: true
+
+volumes:
+  db:
