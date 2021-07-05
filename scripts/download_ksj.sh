@@ -12,7 +12,7 @@
 #
 # ------------------------------------------------------------------------------
 
-set -e # Exit script immediately on first error.
+#set -e # Exit script immediately on first error.
 #set -x # Print commands and their arguments as they are executed.
 
 YEAR_FNAMES=(
@@ -75,7 +75,7 @@ zip="${OUT_ZIP_DIR}/${fname}_GML.zip"
 if [ ! -e "${zip}" ] ; then
   curl -s "${url}" > "${zip}"
 fi
-unzip -jo ${zip} -d ${OUT_SHP_DIR}
+unzip -qq -jo ${zip} -d ${OUT_SHP_DIR}
 
 # Generate SQL file
 #for shp in `find ${OUT_SHP_DIR} -name '*.shp'`; do

@@ -76,7 +76,7 @@ for pref_code in $(seq -w 1 47); do
   if [ ! -e "${zip}" ] ; then
     curl -s "${url}" > "${zip}"
   fi
-  unzip -jo ${zip} -d ${OUT_SHP_DIR}
+  unzip -qq -jo ${zip} -d ${OUT_SHP_DIR}
 done
 
 # Generate SQL files
