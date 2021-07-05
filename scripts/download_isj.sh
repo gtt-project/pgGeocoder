@@ -82,7 +82,7 @@ for pref_code in `seq -w 1 47` ; do
   oaza_url="https://nlftp.mlit.go.jp/isj/dls/data/${oaza_ver}/${pref_code}000-${oaza_ver}.zip"
   oaza_zip="${OUT_OAZA_ZIP_DIR}/${pref_code}000-${oaza_ver}.zip"
   if [ ! -e "${oaza_zip}" ] ; then
-    curl ${oaza_url} > ${oaza_zip}
+    curl -s ${oaza_url} > ${oaza_zip}
   fi
   unzip -p ${oaza_zip} '*.[cC][sS][vV]' | iconv -c -f cp932 -t utf8 > ${OUT_OAZA_CSV_DIR}/${pref_code}_${year}.csv
 

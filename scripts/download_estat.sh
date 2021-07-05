@@ -74,7 +74,7 @@ for pref_code in $(seq -w 1 47); do
   url="${BASE_URL}?dlserveyId=${tcode}&code=${pref_code}&coordSys=1&format=shape&downloadType=5"
   zip="${OUT_ZIP_DIR}/${tcode}DDSWC${pref_code}.zip"
   if [ ! -e "${zip}" ] ; then
-    curl "${url}" > "${zip}"
+    curl -s "${url}" > "${zip}"
   fi
   unzip -jo ${zip} -d ${OUT_SHP_DIR}
 done
@@ -106,7 +106,7 @@ for shp in ${OUT_SHP_DIR}/*.shp; do
           -lco CREATE_SCHEMA=${create_schema} \
           -lco CREATE_TABLE=${create_table} \
           -lco DROP_TABLE=${drop_table} \
-          -nln estat.census
+          -nln estat.census_boundary
   echo -ne "."
   let counter=counter+1
 done
