@@ -100,7 +100,8 @@ for shp in ${OUT_SHP_DIR}/*.shp; do
           -f PGDump \
           ${sql} \
           ${shp} \
-          -lco GEOMETRY_NAME=geog \
+          -lco GEOM_TYPE=geometry \
+          -lco GEOMETRY_NAME=geom \
           -lco FID=fid \
           -lco SCHEMA=estat \
           -lco CREATE_SCHEMA=${create_schema} \
