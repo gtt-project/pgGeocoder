@@ -40,8 +40,8 @@ psql -U ${DBROLE} -d ${DBNAME} -f ./sql/isj/createISJTables.sql
 
 OAZA_TABLE="isj.oaza"
 GAIKU_TABLE="isj.gaiku"
-if ((year > 2016)); then
-  GAIKU_TABLE="isj.gaiku_with_koaza"
+if ((year < 2017)); then
+  GAIKU_TABLE="isj.gaiku (pref_name, city_name, oaza_name, gaiku_code, cs_number, x, y, lat, lon, residence_display_flag, representative_flag, before_update_flag, after_update_flag)"
 fi
 
 # Import oaza csv files

@@ -1,30 +1,10 @@
 create schema if not exists isj;
 
 --
--- 2009 ~ 2016
--- https://nlftp.mlit.go.jp/isj/dls/form/08.0a.html
+-- 2009 ~ 2016: https://nlftp.mlit.go.jp/isj/dls/form/08.0a.html
+-- 2017 ~ 2019: https://nlftp.mlit.go.jp/isj/dls/form/16.0a.html
 --
 create table isj.gaiku (
-  pref_name text, -- 都道府県名
-  city_name text, -- 市区町村名
-  oaza_name text, -- 大字・丁目名
-  gaiku_code text, -- 街区符号・地番
-  cs_number smallint, -- 座標系番号
-  x float, -- Ｘ座標
-  y float, -- Ｙ座標
-  lat float, -- 緯度
-  lon float, -- 経度
-  residence_display_flag boolean, -- 住居表示フラグ
-  representative_flag boolean, -- 代表フラグ
-  before_update_flag smallint, -- 更新前履歴フラグ (1：新規作成、2：名称変更、3：削除、0：変更なし（半角）)
-  after_update_flag smallint -- 更新後履歴フラグ (1：新規作成、2：名称変更、3：削除、0：変更なし（半角）)
-);
-
---
--- 2017 ~ 2019
--- https://nlftp.mlit.go.jp/isj/dls/form/16.0a.html
---
-create table isj.gaiku_with_koaza (
   pref_name text, -- 都道府県名
   city_name text, -- 市区町村名
   oaza_name text, -- 大字・丁目名
