@@ -28,10 +28,16 @@ if [ ! -d ${IN_SHP_DIR} ] || [ ! -d ${IN_SQL_DIR} ]; then
   exit 2
 fi
 
+# Drop estat tables and schema once
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/estat/dropEStatTables.sql
+
 # Import sql files
 echo "Import sql files"
 for sql in ${IN_SQL_DIR}/*.sql ; do
   psql -U ${DBROLE} -d ${DBNAME} -q -f ${sql}
 done
+
+# Convert EStat datas to pgGeocoder boundary_o table
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/estat/convertEStatDatas.sql
 
 echo -e "\nDone!"

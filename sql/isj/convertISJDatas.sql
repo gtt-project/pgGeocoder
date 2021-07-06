@@ -53,3 +53,9 @@ insert into address_s (todofuken, shikuchoson, lat, lon, code)
 insert into address_t (todofuken, lat, lon, code)
   select pref_name, st_y(geom), st_x(geom), pref_code from isj.pref
     order by pref_code;
+
+
+--
+-- Normalize oaza data in address_o table
+--
+update address_o set tr_ooaza = normalizeAddr(ooaza);

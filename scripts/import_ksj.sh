@@ -28,10 +28,16 @@ if [ ! -d ${IN_SHP_DIR} ] || [ ! -d ${IN_SQL_DIR} ]; then
   exit 2
 fi
 
+# Drop ksj tables and schema once
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/ksj/dropKSJTables.sql
+
 # Import sql file
 echo "Import sql file"
 for sql in ${IN_SQL_DIR}/*.sql ; do
   psql -U ${DBROLE} -d ${DBNAME} -q -f ${sql}
 done
+
+# Convert KSJ datas to pgGeocoder boundary_s|t table
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/ksj/convertKSJDatas.sql
 
 echo -e "\nDone!"
