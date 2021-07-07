@@ -43,16 +43,16 @@ insert into address_o (todofuken, shikuchoson, ooaza, lat, lon, code, geog)
 --
 -- Inserting the created City data into address_s table
 --
-insert into address_s (todofuken, shikuchoson, lat, lon, code)
-  select pref_name, city_name, st_y(geom), st_x(geom), city_code from isj.city
-    order by city_code;
+insert into address_s (todofuken, shikuchoson, lat, lon, code, geog)
+  select pref_name, city_name, st_y(geom), st_x(geom), city_code,
+    geom::geography from isj.city order by city_code;
 
 --
 -- Inserting the created Pref(Todofuken) data into address_t table
 --
-insert into address_t (todofuken, lat, lon, code)
-  select pref_name, st_y(geom), st_x(geom), pref_code from isj.pref
-    order by pref_code;
+insert into address_t (todofuken, lat, lon, code, geog)
+  select pref_name, st_y(geom), st_x(geom), pref_code,
+  geom::geography from isj.pref order by pref_code;
 
 
 --

@@ -4,8 +4,9 @@ create table address_t (
   todofuken varchar(60),
   lat float,
   lon float,
+  ttable varchar(40),
   code varchar(2),
-  ttable varchar(40)
+  geog geography('POINT')
 );
 
 create table address_s (
@@ -13,7 +14,8 @@ create table address_s (
   shikuchoson varchar(60),
   lat float,
   lon float,
-  code varchar(5)
+  code varchar(5),
+  geog geography('POINT')
 );
 
 create table address_o (

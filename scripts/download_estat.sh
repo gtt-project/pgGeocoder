@@ -55,13 +55,12 @@ fi
 echo "year:${year}, tcode:${tcode}"
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-OUT_ROOT_DIR=${SCRIPT_DIR}/../data/estat
-OUT_YEAR_DIR=${OUT_ROOT_DIR}/${year}
-OUT_ZIP_DIR=${OUT_YEAR_DIR}/zip
-OUT_SHP_DIR=${OUT_YEAR_DIR}/shp
-OUT_SQL_DIR=${OUT_YEAR_DIR}/sql
+OUT_ROOT_DIR=${SCRIPT_DIR}/../data/estat/census_boundary
+OUT_ZIP_DIR=${OUT_ROOT_DIR}/${year}/zip
+OUT_SHP_DIR=${OUT_ROOT_DIR}/${year}/shp
+OUT_SQL_DIR=${OUT_ROOT_DIR}/${year}/sql
 
-mkdir -p ${OUT_YEAR_DIR}
+mkdir -p ${OUT_ROOT_DIR}
 mkdir -p ${OUT_ZIP_DIR}
 mkdir -p ${OUT_SHP_DIR}
 mkdir -p ${OUT_SQL_DIR}
@@ -69,6 +68,7 @@ mkdir -p ${OUT_SQL_DIR}
 BASE_URL="https://www.e-stat.go.jp/gis/statmap-search/data"
 
 # Download 47 prefecture shapes
+echo -e "Downloading zip files and extracting shp files..."
 for pref_code in $(seq -w 1 47); do
   # echo "Downloading prefecture ${i} in ${tcode} ..."
   url="${BASE_URL}?dlserveyId=${tcode}&code=${pref_code}&coordSys=1&format=shape&downloadType=5"
@@ -80,6 +80,7 @@ for pref_code in $(seq -w 1 47); do
 done
 
 # Generate SQL files
+echo -e "Generating sql files..."
 counter=0
 #for shp in `find ${OUT_SHP_DIR} -name '*.shp'`; do
 for shp in ${OUT_SHP_DIR}/*.shp; do
@@ -112,4 +113,4 @@ for shp in ${OUT_SHP_DIR}/*.shp; do
   let counter=counter+1
 done
 
-echo -e "\nDone: ${counter} SQL files generated!"
+echo -e "\nDone: ${counter} sql files generated!"

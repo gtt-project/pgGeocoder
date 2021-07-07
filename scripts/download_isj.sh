@@ -57,17 +57,16 @@ echo "year:${year}, era_year:${era_year}, oaza_ver:${oaza_ver}, gaiku_ver:${gaik
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 OUT_ROOT_DIR=${SCRIPT_DIR}/../data/isj
-OUT_YEAR_DIR=${OUT_ROOT_DIR}/${year}
 
-OUT_OAZA_DIR=${OUT_YEAR_DIR}/oaza
-OUT_OAZA_ZIP_DIR=${OUT_OAZA_DIR}/zip
-OUT_OAZA_CSV_DIR=${OUT_OAZA_DIR}/csv
+OUT_OAZA_DIR=${OUT_ROOT_DIR}/oaza
+OUT_OAZA_ZIP_DIR=${OUT_OAZA_DIR}/${year}/zip
+OUT_OAZA_CSV_DIR=${OUT_OAZA_DIR}/${year}/csv
 
-OUT_GAIKU_DIR=${OUT_YEAR_DIR}/gaiku
-OUT_GAIKU_ZIP_DIR=${OUT_GAIKU_DIR}/zip
-OUT_GAIKU_CSV_DIR=${OUT_GAIKU_DIR}/csv
+OUT_GAIKU_DIR=${OUT_ROOT_DIR}/gaiku
+OUT_GAIKU_ZIP_DIR=${OUT_GAIKU_DIR}/${year}/zip
+OUT_GAIKU_CSV_DIR=${OUT_GAIKU_DIR}/${year}/csv
 
-mkdir -p ${OUT_YEAR_DIR}
+mkdir -p ${OUT_ROOT_DIR}
 
 mkdir -p ${OUT_OAZA_DIR}
 mkdir -p ${OUT_OAZA_ZIP_DIR}
@@ -78,6 +77,7 @@ mkdir -p ${OUT_GAIKU_ZIP_DIR}
 mkdir -p ${OUT_GAIKU_CSV_DIR}
 
 # Download zip files and extract *.csv files
+echo -e "Downloading oaza/gaiku zip files and extracting csv files..."
 for pref_code in `seq -w 1 47` ; do
   oaza_url="https://nlftp.mlit.go.jp/isj/dls/data/${oaza_ver}/${pref_code}000-${oaza_ver}.zip"
   oaza_zip="${OUT_OAZA_ZIP_DIR}/${pref_code}000-${oaza_ver}.zip"

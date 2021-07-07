@@ -18,13 +18,12 @@ echo "year:${year}"
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 IN_ROOT_DIR=${SCRIPT_DIR}/../data/isj
-IN_YEAR_DIR=${IN_ROOT_DIR}/${year}
 
-IN_OAZA_DIR=${IN_YEAR_DIR}/oaza
-IN_OAZA_CSV_DIR=${IN_OAZA_DIR}/csv
+IN_OAZA_DIR=${IN_ROOT_DIR}/oaza
+IN_OAZA_CSV_DIR=${IN_OAZA_DIR}/${year}/csv
 
-IN_GAIKU_DIR=${IN_YEAR_DIR}/gaiku
-IN_GAIKU_CSV_DIR=${IN_GAIKU_DIR}/csv
+IN_GAIKU_DIR=${IN_ROOT_DIR}/gaiku
+IN_GAIKU_CSV_DIR=${IN_GAIKU_DIR}/${year}/csv
 
 if [ ! -d ${IN_OAZA_CSV_DIR} ] || [ ! -d ${IN_GAIKU_CSV_DIR} ]; then
   echo "CSV files are not downloaded yet" 1>&2
@@ -57,6 +56,7 @@ for csv in ${IN_GAIKU_CSV_DIR}/*.csv ; do
 done
 
 # Convert ISJ datas to pgGeocoder address tables
+echo -e "\nConverting ISJ datas to address tables..."
 psql -U ${DBROLE} -d ${DBNAME} -f ./sql/isj/convertISJDatas.sql
 
 echo -e "\nDone!"
