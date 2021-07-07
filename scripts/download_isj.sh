@@ -89,7 +89,7 @@ for pref_code in `seq -w 1 47` ; do
   gaiku_url="https://nlftp.mlit.go.jp/isj/dls/data/${gaiku_ver}/${pref_code}000-${gaiku_ver}.zip"
   gaiku_zip="${OUT_GAIKU_ZIP_DIR}/${pref_code}000-${gaiku_ver}.zip"
   if [ ! -e "${gaiku_zip}" ] ; then
-    curl ${gaiku_url} > ${gaiku_zip}
+    curl -s ${gaiku_url} > ${gaiku_zip}
   fi
   unzip -p ${gaiku_zip} '*.[cC][sS][vV]' | iconv -c -f cp932 -t utf8 > ${OUT_GAIKU_CSV_DIR}/${pref_code}_${year}.csv
 

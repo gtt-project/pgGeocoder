@@ -75,12 +75,14 @@ for pref_code in $(seq -w 1 47); do
   zip="${OUT_ZIP_DIR}/${tcode}DDSWC${pref_code}.zip"
   if [ ! -e "${zip}" ] ; then
     curl -s "${url}" > "${zip}"
+    sleep 2
   fi
   unzip -qq -jo ${zip} -d ${OUT_SHP_DIR}
+  echo -ne "."
 done
 
 # Generate SQL files
-echo -e "Generating sql files..."
+echo -e "\nGenerating sql files..."
 counter=0
 #for shp in `find ${OUT_SHP_DIR} -name '*.shp'`; do
 for shp in ${OUT_SHP_DIR}/*.shp; do
@@ -108,7 +110,8 @@ for shp in ${OUT_SHP_DIR}/*.shp; do
           -lco CREATE_SCHEMA=${create_schema} \
           -lco CREATE_TABLE=${create_table} \
           -lco DROP_TABLE=${drop_table} \
-          -nln estat.census_boundary
+          -nln estat.census_boundary \
+          -oo ENCODING=CP932
   echo -ne "."
   let counter=counter+1
 done

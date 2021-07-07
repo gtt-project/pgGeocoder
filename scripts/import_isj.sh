@@ -44,13 +44,13 @@ if ((year < 2017)); then
 fi
 
 # Import oaza csv files
-echo "Import oaza csv files"
+echo -e "\nImporting oaza csv files..."
 for csv in ${IN_OAZA_CSV_DIR}/*.csv ; do
   psql -U ${DBROLE} -d ${DBNAME} -c "\copy ${OAZA_TABLE} from '${csv}' with delimiter ',' csv header;"
 done
 
 # Import gaiku csv files
-echo "Import gaiku csv files"
+echo -e "\nImporting gaiku csv files..."
 for csv in ${IN_GAIKU_CSV_DIR}/*.csv ; do
   psql -U ${DBROLE} -d ${DBNAME} -c "\copy ${GAIKU_TABLE} from '${csv}' with delimiter ',' csv header;"
 done

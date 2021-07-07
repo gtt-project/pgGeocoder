@@ -110,7 +110,8 @@ for shp in ${OUT_ADMIN_BOUNDARY_SHP_DIR}/*.shp; do
           -lco CREATE_SCHEMA=YES \
           -lco CREATE_TABLE=YES \
           -lco DROP_TABLE=IF_EXISTS \
-          -nln ksj.admin_boundary
+          -nln ksj.admin_boundary \
+          -oo ENCODING=CP932
 done
 
 # Download government zip
@@ -139,7 +140,8 @@ for shp in ${OUT_GOVERNMENT_SHP_DIR}/*.shp; do
           -lco CREATE_SCHEMA=YES \
           -lco CREATE_TABLE=YES \
           -lco DROP_TABLE=IF_EXISTS \
-          -nln ksj.government
+          -nln ksj.government \
+          -oo ENCODING=CP932
 done
 
 # Download 47 prefecture shapes
@@ -183,7 +185,8 @@ for shp in ${OUT_CITY_OFFICE_SHP_DIR}/*.shp; do
           -lco CREATE_SCHEMA=${create_schema} \
           -lco CREATE_TABLE=${create_table} \
           -lco DROP_TABLE=${drop_table} \
-          -nln ksj.city_office
+          -nln ksj.city_office \
+          -oo ENCODING=CP932
   echo -ne "."
   let counter=counter+1
 done

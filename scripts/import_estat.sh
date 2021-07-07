@@ -17,7 +17,7 @@ year="$1"
 echo "year:${year}"
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-IN_ROOT_DIR=${SCRIPT_DIR}/../data/estat
+IN_ROOT_DIR=${SCRIPT_DIR}/../data/estat/census_boundary
 
 IN_SHP_DIR=${IN_ROOT_DIR}/${year}/shp
 IN_SQL_DIR=${IN_ROOT_DIR}/${year}/sql
