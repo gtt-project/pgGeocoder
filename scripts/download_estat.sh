@@ -17,9 +17,9 @@ set -e # Exit script immediately on first error.
 
 YEAR_TCODES=(
   "2015 A002005212015"
-  "2010 A002005212010"
-  "2005 A002005212005"
-  "2000 A002005512000"
+  #"2010 A002005212010"
+  #"2005 A002005212005"
+  #"2000 A002005512000"
 )
 
 function exit_with_usage()
