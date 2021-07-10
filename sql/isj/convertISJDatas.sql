@@ -14,7 +14,7 @@ create index oaza_geom_idx on isj.oaza using gist(geom);
 --
 create table isj.city as
   select pref_code, pref_name, city_code, city_name,
-    st_centroid(st_union(st_makepoint(lon,lat))) as geom from isj.oaza
+    st_pointonsurface(st_union(st_makepoint(lon,lat))) as geom from isj.oaza
     group by pref_code, pref_name, city_code, city_name order by city_code;
 
 --
@@ -22,7 +22,7 @@ create table isj.city as
 --
 create table isj.pref as
   select pref_code, pref_name,
-    st_centroid(st_union(st_makepoint(lon,lat))) as geom from isj.oaza
+    st_pointonsurface(st_union(st_makepoint(lon,lat))) as geom from isj.oaza
     group by pref_code, pref_name order by pref_code;
 
 
