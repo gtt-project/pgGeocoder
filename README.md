@@ -20,15 +20,15 @@
    ```
    DBROLE=postgres
    DBPASS=postgres
-   DBNAME=address
+   DBNAME=addresses
    DBHOST=localhost
    DBPORT=5432
    ```
 3. Create address database (with same as `.env` values).  
    (If the database exists, drop it at first.)
    ```bash
-   # dropdb -U postgress address
-   $ createdb -U postgres address
+   # dropdb -U postgress addresses
+   $ createdb -U postgres addresses
    ```
 4. Run install and download/import scripts.
    ```bash
@@ -64,7 +64,7 @@ About functions, check the following files.
 ## Examples
 
 ```bash
-$ psql -U postgres address
+$ psql -U postgres addresses
 ```
 
 - Geocode on address:
