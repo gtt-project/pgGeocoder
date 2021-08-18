@@ -69,28 +69,12 @@ $$ LANGUAGE plpgsql;
 --   NOTE: The Address Table must have a column named "geog" of type Geography
 --
 
-CREATE OR REPLACE FUNCTION reverse_geocoder(numeric, numeric) 
+CREATE OR REPLACE FUNCTION reverse_geocoder(
+    mLon numeric,
+    mLat numeric,
+    mDist numeric default 50)
   RETURNS geores AS $$
 DECLARE
-  mLon ALIAS FOR $1;
-  mLat ALIAS FOR $2;
-  output geores;
-BEGIN
---
--- Setting Default Search Distance to 50 meters
---
-  output := reverse_geocoder(mLon,mLat,50);
-  RETURN output;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION reverse_geocoder(numeric, numeric, numeric) 
-  RETURNS geores AS $$
-DECLARE
-  mLon  ALIAS FOR $1;
-  mLat  ALIAS FOR $2;
-  mDist ALIAS FOR $3;
-  
   point     geometry;
   o_bdry    RECORD;
   record    RECORD;
@@ -114,7 +98,7 @@ BEGIN
     IF FOUND THEN
       RETURN mk_geores(record, 1);
     ELSE
-      SELECT INTO record todofuken, shikuchoson, ooaza,
+      SELECT INTO record todofuken, shikuchoson, ooaza, NULL as chiban,
         lon, lat,
         todofuken||shikuchoson||ooaza AS address,
         st_distance(point::geography,geog) AS dist 
@@ -135,7 +119,8 @@ BEGIN
   IF s_flag THEN
     SELECT INTO s_bdry geom FROM boundary_s WHERE st_intersects(point,geom);
     IF FOUND THEN
-      SELECT INTO record todofuken, shikuchoson, lon, lat,
+      SELECT INTO record todofuken, shikuchoson, NULL as ooaza, NULL as chiban,
+          lon, lat,
           todofuken||shikuchoson AS address, 0 AS dist
         FROM address_s AS a
         WHERE st_intersects(a.geog, s_bdry.geom::geography);
@@ -152,10 +137,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION reverse_geocoder(
-    mLon  numeric default 0.0,
-    mLat  numeric default 0.0,
-    mDist numeric default 50,
-    mAddr boolean default true,
+    mLon  numeric,
+    mLat  numeric,
+    mDist numeric,
+    mAddr boolean,
     mCat  varchar default NULL,
     mOwnr varchar default NULL,
     mLimit numeric default 1)
@@ -172,7 +157,7 @@ BEGIN
     -- Address Table Search
     --
     output := reverse_geocoder(mLon,mLat,mDist);
-    RETURN NEXT mk_geores( record );
+    RETURN NEXT output;
     RETURN;
   ELSE
     --
