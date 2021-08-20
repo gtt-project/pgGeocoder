@@ -1,5 +1,8 @@
 create extension postgis;
 
+--
+-- for Geocoding
+--
 create table address_t (
   todofuken varchar(60),
   lat float,
@@ -39,7 +42,9 @@ create table address (
   geog geography('POINT')
 );
 
-
+--
+-- for Reverse Geocoding
+--
 create table boundary_t (
   todofuken varchar(60),
   code varchar(2),
@@ -59,4 +64,18 @@ create table boundary_o (
   ooaza varchar(60),
   code varchar(12),
   geom geometry('MULTIPOLYGON', 4326)
+);
+
+--
+-- for Reverse Geocoding in Places 
+--
+create table places (
+  id serial,
+  owner varchar,
+  category varchar,
+  name varchar,
+  lat float,
+  lon float,
+  details jsonb,
+  geog geography('POINT')
 );
