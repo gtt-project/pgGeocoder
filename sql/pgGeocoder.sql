@@ -77,9 +77,9 @@ BEGIN
   IF output.address <> 'なし' THEN
     output.code := matching_todofuken;
     
-    -- IF LENGTH( address ) <= 4 THEN
-    --    RETURN output;
-    -- END IF;
+    IF LENGTH( address ) <= 4 THEN
+      RETURN output;
+    END IF;
     
     gc := searchShikuchoson( address,output.todofuken);
   ELSE
@@ -92,7 +92,10 @@ BEGIN
     output.code := matching_shikuchoson;
     gc := searchOoaza( address,output.todofuken,output.shikuchoson );
   ELSE
-    output := searchPlaces( address );
+    gc := searchPlaces( address );
+    IF gc.address <> 'なし' THEN
+      output :=gc;
+    END IF;
     RETURN output;
   END IF;
 
