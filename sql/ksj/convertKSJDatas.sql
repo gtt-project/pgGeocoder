@@ -15,6 +15,18 @@ insert into boundary_t (todofuken, code, geom)
     st_multi(st_union(geom)) from ksj.admin_boundary
     group by n03_001 order by pref_code;
 
+--
+-- Fillng the Pref(Todofuken) boundary polygon holes
+--
+update boundary_t as a set geom = b.geom
+  from (
+    select code, st_collect(st_makepolygon(geom)) as geom
+      from (
+        select code, st_exteriorring((st_dump(geom)).geom) as geom
+          from boundary_t
+      ) as s
+      group by code
+  ) as b where a.code = b.code;
 
 --
 -- Fixing city changes after 2015
