@@ -77,9 +77,9 @@ BEGIN
   IF output.address <> 'なし' THEN
     output.code := matching_todofuken;
     
-    -- IF LENGTH( address ) <= 4 THEN
-    --    RETURN output;
-    -- END IF;
+    IF LENGTH( address ) <= 4 THEN
+      RETURN output;
+    END IF;
     
     gc := searchShikuchoson( address,output.todofuken);
   ELSE
@@ -92,7 +92,10 @@ BEGIN
     output.code := matching_shikuchoson;
     gc := searchOoaza( address,output.todofuken,output.shikuchoson );
   ELSE
-    output := searchPlaces( address );
+    gc := searchPlaces( address );
+    IF gc.address <> 'なし' THEN
+      output :=gc;
+    END IF;
     RETURN output;
   END IF;
 
@@ -318,6 +321,7 @@ DECLARE
   paddress    ALIAS FOR $1;
   r_todofuken ALIAS FOR $2;
   address     varchar;
+  tmpstr      varchar;
   rec         RECORD;
   output      geores;
 BEGIN
@@ -333,12 +337,15 @@ BEGIN
   address := replace(address,'　','');
 
   IF r_todofuken <> '' THEN
+    tmpstr := split_part(address,r_todofuken,2);
     SELECT INTO rec * FROM address_s WHERE 
      todofuken = r_todofuken AND
-     address LIKE '%'||shikuchoson||'%';
+     tmpstr LIKE shikuchoson||'%'
+     ORDER BY length(shikuchoson) DESC;
   ELSE
     SELECT INTO rec * FROM address_s WHERE 
-     address LIKE shikuchoson||'%';
+     address LIKE shikuchoson||'%'
+     ORDER BY length(shikuchoson) DESC;
   END IF;
 
   IF FOUND THEN

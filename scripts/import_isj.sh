@@ -25,6 +25,8 @@ IN_OAZA_CSV_DIR=${IN_OAZA_DIR}/${year}/csv
 IN_GAIKU_DIR=${IN_ROOT_DIR}/gaiku
 IN_GAIKU_CSV_DIR=${IN_GAIKU_DIR}/${year}/csv
 
+IN_PATCHES_CSV_DIR=${IN_ROOT_DIR}/patches
+
 if [ ! -d ${IN_OAZA_CSV_DIR} ] || [ ! -d ${IN_GAIKU_CSV_DIR} ]; then
   echo "CSV files are not downloaded yet" 1>&2
   exit 2
@@ -58,5 +60,12 @@ done
 # Convert ISJ datas to pgGeocoder address tables
 echo -e "\nConverting ISJ datas to address tables..."
 psql -U ${DBROLE} -d ${DBNAME} -f ./sql/isj/convertISJDatas.sql
+
+# Patch address tables
+echo -e "\nPatching address tables..."
+for csv in ${IN_PATCHES_CSV_DIR}/address_*.csv ; do
+  table_name=`basename ${csv} .csv`
+  psql -U ${DBROLE} -d ${DBNAME} -c "\copy ${table_name} from '${csv}' with delimiter ',' csv header;"
+done
 
 echo -e "\nDone!"
