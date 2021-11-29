@@ -30,20 +30,6 @@
 -- で請求してください(宛先は the Free Software Foundation, Inc., 59
 -- Temple Place, Suite 330, Boston, MA 02111-1307 USA)。
 
--- DROP TYPE geores CASCADE;
-
-CREATE TYPE geores AS (
-   code        integer,
-   x           double precision,
-   y           double precision,
-   address     character varying,
-   todofuken   character varying,
-   shikuchoson character varying,
-   ooaza       character varying,
-   chiban      character varying,  
-   go          character varying
-);
-
 
 CREATE OR REPLACE FUNCTION mk_geores(
     record RECORD,
