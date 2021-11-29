@@ -67,7 +67,7 @@ create table boundary_o (
 );
 
 --
--- for Reverse Geocoding in Places 
+-- for Places 
 --
 create table places (
   id serial,

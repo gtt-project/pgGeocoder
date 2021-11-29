@@ -27,7 +27,7 @@
 3. Create address database (with same as `.env` values).  
    (If the database exists, drop it at first.)
    ```bash
-   # dropdb -U postgress addresses
+   # dropdb -U postgres addresses
    $ createdb -U postgres addresses
    ```
 4. Run install and download/import scripts.
@@ -39,6 +39,7 @@
    $ bash scripts/import_estat.sh 2015
    $ bash scripts/download_ksj.sh 2021
    $ bash scripts/import_ksj.sh 2021
+   $ bash scripts/import_places.sh
    ```
 5. Run maintenance script.
    ```bash
@@ -81,8 +82,8 @@ $ psql -U postgres addresses
    select * from geocoder('神奈川県横浜市西区みなとみらい３−６−３');
    ```
    ```
-    code |     x      |     y     |              address             | todofuken | shikuchoson |      ooaza      | chiban | go 
-   ------+------------+-----------+----------------------------------+-----------+-------------+-----------------+--------+----
+    code |     x      |     y     |             address             | todofuken | shikuchoson |     ooaza      | chiban | go 
+   ------+------------+-----------+---------------------------------+-----------+-------------+----------------+--------+----
        2 | 139.632805 | 35.458282 | 神奈川県横浜市西区みなとみらい三丁目6番 | 神奈川県   | 横浜市西区    | みなとみらい三丁目 | 6      | 
    (1 row)
    ```
@@ -91,9 +92,9 @@ $ psql -U postgres addresses
    select * from reverse_geocoder(141.342094, 43.050264);
    ```
    ```
-    code |     x      |     y     |            address            | todofuken | shikuchoson  |     ooaza     | chiban | go 
-   ------+------------+-----------+-------------------------------+-----------+--------------+---------------+--------+----
-       1 | 141.341681 | 43.050529 | 北海道札幌市中央区南七条西十一丁目3 | 北海道     | 札幌市中央区   | 南七条西十一丁目 | 3      | 
+    code |     x      |     y     |            address            | todofuken | shikuchoson |     ooaza     | chiban | go 
+   ------+------------+-----------+-------------------------------+-----------+-------------+---------------+--------+----
+       1 | 141.341681 | 43.050529 | 北海道札幌市中央区南七条西十一丁目3 | 北海道     | 札幌市中央区  | 南七条西十一丁目 | 3      | 
    (1 row)
    ```
 - Reverse geocode a coordinate and specify search distance in meters (lon, lat, meters)
@@ -101,9 +102,9 @@ $ psql -U postgres addresses
    select * from reverse_geocoder(141.342094, 43.050264, 50);
    ```
    ```
-    code |     x      |     y     |            address            | todofuken | shikuchoson  |     ooaza     | chiban | go 
-   ------+------------+-----------+-------------------------------+-----------+--------------+---------------+--------+----
-       1 | 141.341681 | 43.050529 | 北海道札幌市中央区南七条西十一丁目3 | 北海道     | 札幌市中央区   | 南七条西十一丁目 | 3      | 
+    code |     x      |     y     |            address            | todofuken | shikuchoson |     ooaza     | chiban | go 
+   ------+------------+-----------+-------------------------------+-----------+-------------+---------------+--------+----
+       1 | 141.341681 | 43.050529 | 北海道札幌市中央区南七条西十一丁目3 | 北海道     | 札幌市中央区  | 南七条西十一丁目 | 3      | 
    (1 row)
    ```
 

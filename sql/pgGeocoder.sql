@@ -71,14 +71,17 @@ BEGIN
   matching_ooaza       := 3;
   matching_chiban      := 2;
   matching_pinpnt      := 1;
-  
+    
+  --
+  -- Address Search
+  --
   output := searchTodofuken( address );
 
   IF output.address <> 'なし' THEN
     output.code := matching_todofuken;
     
     IF LENGTH( address ) <= 4 THEN
-      RETURN output;
+       RETURN output;
     END IF;
     
     gc := searchShikuchoson( address,output.todofuken);
@@ -92,6 +95,9 @@ BEGIN
     output.code := matching_shikuchoson;
     gc := searchOoaza( address,output.todofuken,output.shikuchoson );
   ELSE
+    --
+    -- Places Search (not an address)
+    --
     gc := searchPlaces( address );
     IF gc.address <> 'なし' THEN
       output :=gc;
@@ -254,7 +260,7 @@ BEGIN
   address := replace(paddress,' ','');
   address := replace(address,'　','');
 
-  SELECT INTO rec * FROM places WHERE name LIKE address||'%' 
+  SELECT INTO rec * FROM places WHERE name IS NOT NULL AND name LIKE address||'%' 
     ORDER BY name LIMIT 1;
 
   IF FOUND THEN

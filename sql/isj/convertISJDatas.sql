@@ -3,11 +3,11 @@
 --
 alter table isj.gaiku add column geom geometry('POINT', 4326);
 update isj.gaiku set geom = st_setsrid(st_makepoint(lon, lat), 4326);
-create index gaiku_geom_idx on isj.gaiku using gist(geom);
+-- create index gaiku_geom_idx on isj.gaiku using gist(geom);
 
 alter table isj.oaza add column geom geometry('POINT', 4326);
 update isj.oaza set geom = st_setsrid(st_makepoint(lon, lat), 4326);
-create index oaza_geom_idx on isj.oaza using gist(geom);
+-- create index oaza_geom_idx on isj.oaza using gist(geom);
 
 --
 -- Creating a temporary City(Shikuchoson) table from the Oaza table
