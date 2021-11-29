@@ -45,13 +45,16 @@ CREATE TYPE geores AS (
 );
 
 
-CREATE OR REPLACE FUNCTION mk_geores( record RECORD) RETURNS geores AS $$
+CREATE OR REPLACE FUNCTION mk_geores(
+    record RECORD,
+    code integer default 1)
+  RETURNS geores AS $$
 DECLARE 
     output geores;
 BEGIN
      output.x          := record.lon;
      output.y          := record.lat;
-     output.code       := 1;
+     output.code       := code;
      output.address    := record.address;
      output.todofuken  := record.todofuken;
      output.shikuchoson:= record.shikuchoson;
@@ -67,13 +70,80 @@ $$ LANGUAGE plpgsql;
 --
 
 CREATE OR REPLACE FUNCTION reverse_geocoder(
-    mLon  numeric default 0.0, 
-    mLat  numeric default 0.0, 
-    mDist numeric default 50,
-    mAddr boolean default true,
+    mLon numeric,
+    mLat numeric,
+    mDist numeric default 50)
+  RETURNS geores AS $$
+DECLARE
+  point     geometry;
+  o_bdry    RECORD;
+  record    RECORD;
+  output    geores;
+  s_flag    boolean;
+  s_bdry    RECORD;
+BEGIN
+
+  s_flag := FALSE;
+  SELECT INTO point st_setsrid(st_makepoint(mLon,mLat),4326);
+  SELECT INTO o_bdry geom FROM boundary_o WHERE st_intersects(point,geom);
+  IF FOUND THEN
+    SELECT INTO record todofuken, shikuchoson, ooaza, chiban,
+      lon, lat,
+      todofuken||shikuchoson||ooaza||chiban AS address,
+      st_distance(point::geography,geog) AS dist 
+      FROM address 
+      WHERE st_intersects(geog,o_bdry.geom::geography) AND st_dwithin(point::geography,geog,mDist) 
+      ORDER BY dist LIMIT 1;
+      
+    IF FOUND THEN
+      RETURN mk_geores(record, 1);
+    ELSE
+      SELECT INTO record todofuken, shikuchoson, ooaza, NULL as chiban,
+        lon, lat,
+        todofuken||shikuchoson||ooaza AS address,
+        st_distance(point::geography,geog) AS dist 
+        FROM address_o 
+        WHERE st_intersects(geog,o_bdry.geom::geography) 
+        ORDER BY dist LIMIT 1;
+        
+      IF FOUND THEN
+        RETURN mk_geores(record, 2);
+      ELSE
+        s_flag := TRUE;
+      END IF;
+    END IF;
+  ELSE
+    s_flag := TRUE;
+  END IF;
+
+  IF s_flag THEN
+    SELECT INTO s_bdry geom FROM boundary_s WHERE st_intersects(point,geom);
+    IF FOUND THEN
+      SELECT INTO record todofuken, shikuchoson, NULL as ooaza, NULL as chiban,
+          lon, lat,
+          todofuken||shikuchoson AS address, 0 AS dist
+        FROM address_s AS a
+        WHERE st_intersects(a.geog, s_bdry.geom::geography);
+      IF FOUND THEN
+        RETURN mk_geores(record, 3);
+      ELSE
+        RETURN NULL;
+      END IF;
+    ELSE
+      RETURN NULL;
+    END IF;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION reverse_geocoder(
+    mLon  numeric,
+    mLat  numeric,
+    mDist numeric,
+    mAddr boolean,
     mCat  varchar default NULL,
     mOwnr varchar default NULL,
-    mLimit numeric default 1  ) 
+    mLimit numeric default 1)
   RETURNS setof geores AS $$
 DECLARE  
   mAddress  varchar;
@@ -82,90 +152,81 @@ DECLARE
   output    geores;
 BEGIN
 
-	IF mAddr = TRUE THEN
-	   --
-	   -- Address Table Search
-	   --
-        SELECT INTO record todofuken::text, shikuchoson::text, 
-            ooaza::text, chiban::text,
-            lon, lat,
-            todofuken||shikuchoson||ooaza||chiban::text AS address,
-            st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist 
-        FROM address  
-        WHERE st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist) 
-        ORDER BY dist LIMIT 1;
-        
-        RETURN NEXT mk_geores( record );        
-        RETURN;
-    ELSE
-        --
-        -- Places Table Search
-        --
-        IF mCat IS NOT NULL AND mOwnr IS NOT NULL THEN
-            FOR record IN 
-            SELECT '' AS todofuken, '' AS shikuchoson, 
-                '' AS ooaza, '' AS chiban,
-                lon, lat,
-                name::text AS address,
-                st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist 
-            FROM places  
-            WHERE owner = mOwnr AND category = mCat AND 
-                st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist) 
-            ORDER BY dist LIMIT mLimit LOOP
-            
-            RETURN NEXT mk_geores( record ); 
-            
-            END LOOP;
-        ELSIF mCat IS NOT NULL AND mOwnr IS NULL THEN
-            FOR record IN
-            SELECT '' AS todofuken, '' AS shikuchoson, 
-                '' AS ooaza, '' AS chiban,
-                lon, lat,
-                name::text AS address,
-                st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist 
-            FROM places  
-            WHERE category = mCat AND 
-                st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist) 
-            ORDER BY dist LIMIT mLimit LOOP
-            
-            RETURN NEXT mk_geores( record ); 
-            
-            END LOOP;        
-        
-        ELSIF mCat IS NULL AND mOwnr IS NOT NULL THEN
-            FOR record IN 
-            SELECT '' AS todofuken, '' AS shikuchoson, 
-                '' AS ooaza, '' AS chiban,
-                lon, lat,
-                name::text AS address,
-                st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist 
-            FROM places  
-            WHERE owner = mOwnr AND  
-                st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist) 
-            ORDER BY dist LIMIT mLimit LOOP
-            
-            RETURN NEXT mk_geores( record ); 
-            
-            END LOOP;                
-        
-        ELSE
-            FOR record IN
-            SELECT '' AS todofuken, '' AS shikuchoson, 
-                '' AS ooaza, '' AS chiban,
-                lon, lat,
-                name::text AS address,
-                st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist 
-            FROM places  
-            WHERE st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist) 
-            ORDER BY dist LIMIT mLimit LOOP
-            
-            RETURN NEXT mk_geores( record ); 
-            
-            END LOOP;        
-        END IF;
-        
-    END IF;
+  IF mAddr = TRUE THEN
+    --
+    -- Address Table Search
+    --
+    output := reverse_geocoder(mLon,mLat,mDist);
+    RETURN NEXT output;
+    RETURN;
+  ELSE
+    --
+    -- Places Table Search
+    --
+    IF mCat IS NOT NULL AND mOwnr IS NOT NULL THEN
+      FOR record IN
+      SELECT '' AS todofuken, '' AS shikuchoson,
+        '' AS ooaza, '' AS chiban,
+        lon, lat,
+        name::text AS address,
+        st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist
+      FROM places
+      WHERE owner = mOwnr AND category = mCat AND
+        st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist)
+      ORDER BY dist LIMIT mLimit LOOP
+      
+      RETURN NEXT mk_geores( record );
+      
+      END LOOP;
+    ELSIF mCat IS NOT NULL AND mOwnr IS NULL THEN
+      FOR record IN
+      SELECT '' AS todofuken, '' AS shikuchoson,
+        '' AS ooaza, '' AS chiban,
+        lon, lat,
+        name::text AS address,
+        st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist
+      FROM places
+      WHERE category = mCat AND
+        st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist)
+      ORDER BY dist LIMIT mLimit LOOP
+      
+      RETURN NEXT mk_geores( record );
+      
+      END LOOP;
     
+    ELSIF mCat IS NULL AND mOwnr IS NOT NULL THEN
+      FOR record IN
+      SELECT '' AS todofuken, '' AS shikuchoson,
+        '' AS ooaza, '' AS chiban,
+        lon, lat,
+        name::text AS address,
+        st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist
+      FROM places
+      WHERE owner = mOwnr AND
+        st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist)
+      ORDER BY dist LIMIT mLimit LOOP
+      
+      RETURN NEXT mk_geores( record );
+      
+      END LOOP;
+    
+    ELSE
+      FOR record IN
+      SELECT '' AS todofuken, '' AS shikuchoson,
+        '' AS ooaza, '' AS chiban,
+        lon, lat,
+        name::text AS address,
+        st_distance(st_setsrid(st_makepoint( mLon,mLat),4326)::geography,geog) AS dist
+      FROM places
+      WHERE st_dwithin(st_setsrid(st_makepoint(mLon,mLat),4326)::geography,geog,mDist)
+      ORDER BY dist LIMIT mLimit LOOP
+      
+      RETURN NEXT mk_geores( record );
+      
+      END LOOP;
+    END IF;
+
+  END IF;
+
 END;
 $$ LANGUAGE plpgsql;
-  

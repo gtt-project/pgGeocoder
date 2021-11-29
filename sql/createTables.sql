@@ -43,6 +43,30 @@ create table address (
 );
 
 --
+-- for Reverse Geocoding
+--
+create table boundary_t (
+  todofuken varchar(60),
+  code varchar(2),
+  geom geometry('MULTIPOLYGON', 4326)
+);
+
+create table boundary_s (
+  todofuken varchar(60),
+  shikuchoson varchar(60),
+  code varchar(5),
+  geom geometry('MULTIPOLYGON', 4326)
+);
+
+create table boundary_o (
+  todofuken varchar(60),
+  shikuchoson varchar(60),
+  ooaza varchar(60),
+  code varchar(12),
+  geom geometry('MULTIPOLYGON', 4326)
+);
+
+--
 -- for Places 
 --
 create table places (
