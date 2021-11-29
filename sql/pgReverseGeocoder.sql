@@ -84,7 +84,7 @@ BEGIN
     IF FOUND THEN
       RETURN mk_geores(record, 1);
     ELSE
-      SELECT INTO record todofuken, shikuchoson, ooaza, NULL as chiban,
+      SELECT INTO record todofuken, shikuchoson, ooaza, NULL::varchar as chiban,
         lon, lat,
         todofuken||shikuchoson||ooaza AS address,
         st_distance(point::geography,geog) AS dist 
@@ -105,7 +105,7 @@ BEGIN
   IF s_flag THEN
     SELECT INTO s_bdry geom FROM boundary_s WHERE st_intersects(point,geom);
     IF FOUND THEN
-      SELECT INTO record todofuken, shikuchoson, NULL as ooaza, NULL as chiban,
+      SELECT INTO record todofuken, shikuchoson, NULL::varchar as ooaza, NULL::varchar as chiban,
           lon, lat,
           todofuken||shikuchoson AS address, 0 AS dist
         FROM address_s AS a
