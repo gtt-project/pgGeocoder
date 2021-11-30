@@ -30,20 +30,6 @@
 -- で請求してください(宛先は the Free Software Foundation, Inc., 59
 -- Temple Place, Suite 330, Boston, MA 02111-1307 USA)。
 
--- DROP TYPE geores CASCADE;
-
-CREATE TYPE geores AS (
-   code        integer,
-   x           double precision,
-   y           double precision,
-   address     character varying,
-   todofuken   character varying,
-   shikuchoson character varying,
-   ooaza       character varying,
-   chiban      character varying,  
-   go          character varying
-);
-
 
 CREATE OR REPLACE FUNCTION mk_geores(
     record RECORD,
@@ -98,7 +84,7 @@ BEGIN
     IF FOUND THEN
       RETURN mk_geores(record, 1);
     ELSE
-      SELECT INTO record todofuken, shikuchoson, ooaza, NULL as chiban,
+      SELECT INTO record todofuken, shikuchoson, ooaza, NULL::varchar as chiban,
         lon, lat,
         todofuken||shikuchoson||ooaza AS address,
         st_distance(point::geography,geog) AS dist 
@@ -119,7 +105,7 @@ BEGIN
   IF s_flag THEN
     SELECT INTO s_bdry geom FROM boundary_s WHERE st_intersects(point,geom);
     IF FOUND THEN
-      SELECT INTO record todofuken, shikuchoson, NULL as ooaza, NULL as chiban,
+      SELECT INTO record todofuken, shikuchoson, NULL::varchar as ooaza, NULL::varchar as chiban,
           lon, lat,
           todofuken||shikuchoson AS address, 0 AS dist
         FROM address_s AS a

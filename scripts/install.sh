@@ -3,11 +3,11 @@
 
 source .env
 
-## Adding PostGIS extension support
-#psql -U ${DBROLE} -d ${DBNAME} -c "create extension postgis;"
-
 # Creating the necessary pgGeocoder Tables
 psql -U ${DBROLE} -d ${DBNAME} -f ./sql/createTables.sql
+
+# Creating the necessary pgGeocoder Types
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/createTypes.sql
 
 # Load geocoder function
 psql -U ${DBROLE} -d ${DBNAME} -f ./sql/pgGeocoder.sql
