@@ -15,4 +15,7 @@ psql -U ${DBROLE} -d ${DBNAME} -f ./sql/pgGeocoder.sql
 # Load reverse_geocoder function
 psql -U ${DBROLE} -d ${DBNAME} -f ./sql/pgReverseGeocoder.sql
 
+# Load latlng2jpgridcode function
+psql -U ${DBROLE} -d ${DBNAME} -f ./sql/util/latlng2jpgridcode.sql
+
 echo -e "\nDone!"

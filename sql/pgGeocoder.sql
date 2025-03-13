@@ -41,7 +41,8 @@ CREATE TYPE geores AS (
    shikuchoson character varying,
    ooaza       character varying,
    chiban      character varying,  
-   go          character varying
+   go          character varying,
+   meshcode    character varying
 );
 
 --
@@ -134,8 +135,8 @@ DECLARE
 BEGIN
   
   address := translate(paddress,
-      'ヶケ?ｰ―‐−－ーのノ１２３４５６７８９０〇一二三四五六七八九十丁目',
-      'がが---------12345678900123456789X-');
+      '?ｰ―‐−－ーのノ１２３４５６７８９０〇一二三四五六七八九十丁目',
+      '---------12345678900123456789X-');
 
   IF strpos( address, 'X') <> 0 THEN
     tmparr   := string_to_array( address,'X');
@@ -204,11 +205,18 @@ BEGIN
   END IF;
 
   --
+  -- Kanji correction. 
+  --
+  address := translate( address,
+    '淵壷蛍殼惠鴬靭ッ涛',
+    '渕壺螢殻恵鶯靱ツ濤');
+
+  --
   -- Adding Kobayashi-san's rule set
   --
   address := translate( address,
-    '榮之ノ治ヰヱ淵渕輿曽藪薮籠篭劔峯峰岡丘富冨祓桧檜莱洲冶治壇檀舘館斉斎竈竃朗鷆膳録嶋崎埼碕庄荘横橫鄕神塚塚都都德福朗郞嶽區溪縣廣斎眞槇槙莊藏龍瀧澤當邊舖萬豫禮茅礪砺',
-    '栄-の冶いえ渕淵興曾薮藪篭籠剱峰峯丘岡冨富秡檜桧来州治冶檀壇館舘斎斉釜釜郎鷏善禄島埼崎崎荘庄橫横郷神塚塚都都徳福朗郎岳区渓県広斉真槙槇荘蔵竜滝沢当辺舗万予礼芽砺礪'
+    'ヶケ榮之ノ治ヰヱ淵渕輿曽藪薮籠篭劔峯峰岡丘富冨祓桧檜莱洲冶治壇檀舘館斉斎竈竃朗鷆膳録嶋崎埼碕庄荘横橫鄕神塚塚都都德福朗郞嶽區溪縣廣斎眞槇槙莊藏龍瀧澤當邊舖萬豫禮茅礪砺',
+    'がが栄-の冶いえ渕淵興曾薮藪篭籠剱峰峯丘岡冨富秡檜桧来州治冶檀壇館舘斎斉釜釜郎鷏善禄島埼崎崎荘庄橫横郷神塚塚都都徳福朗郎岳区渓県広斉真槙槇荘蔵竜滝沢当辺舗万予礼芽砺礪'
   );
 
  --
@@ -292,6 +300,7 @@ BEGIN
      output.code      := 4;
      output.address   := rec.todofuken;
      output.todofuken := rec.todofuken;
+     output.meshcode  := rec.meshcode;
   ELSE
      output.code    := 5;
   END IF;
@@ -366,6 +375,7 @@ BEGIN
      output.address    := rec.todofuken || rec.shikuchoson;
      output.todofuken  := rec.todofuken;
      output.shikuchoson:= rec.shikuchoson;
+     output.meshcode   := rec.meshcode;
   END IF;
 
   RETURN output;
@@ -447,6 +457,18 @@ BEGIN
      tr_shikuchoson = t_shikuchoson AND
      strpos(tmpaddr,tr_ooaza) = 1 
      ORDER BY length DESC,year DESC LIMIT 1; 
+
+     --
+     -- 2nd Searching for correct District ('郡')
+     -- 
+     IF NOT FOUND AND t_shikuchoson ~ '郡' THEN    
+       SELECT INTO rec *,length(tr_ooaza) AS length 
+       FROM pggeocoder.address_o WHERE 
+       tr_shikuchoson LIKE '%郡'||split_part(t_shikuchoson,'郡',2) AND
+       strpos(tmpaddr,tr_ooaza) = 1 
+       ORDER BY length DESC,year DESC LIMIT 1;
+     END IF;
+
   END IF;
 
   IF FOUND THEN
@@ -456,7 +478,8 @@ BEGIN
      output.address    := rec.todofuken||rec.shikuchoson||rec.ooaza;
      output.todofuken  := rec.todofuken;
      output.shikuchoson:= rec.shikuchoson;
-     output.ooaza      := rec.ooaza;          
+     output.ooaza      := rec.ooaza;         
+     output.meshcode   := rec.meshcode; 
   END IF;
   
   RETURN output;
@@ -567,6 +590,7 @@ BEGIN
     output.shikuchoson:= rec.shikuchoson;
     output.ooaza      := rec.ooaza;
     output.chiban     := rec.chiban;
+    output.meshcode   := rec.meshcode;
   END IF;
   
   RETURN output;
@@ -641,6 +665,7 @@ BEGIN
     output.ooaza      := r_ooaza;
     output.chiban     := rec.chiban;
     output.go         := tmpstr3;
+    output.meshcode   := rec.meshcode;
   END IF;
   
   RETURN output;
