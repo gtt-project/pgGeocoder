@@ -15,8 +15,9 @@ create table pggeocoder.address_t (
   lat float,
   lon float,
   ttable varchar(40),
-  code varchar(2),
+  code varchar(2),  
   geog geography('POINT'),
+  meshcode text,
   year text
 );
 
@@ -30,6 +31,7 @@ create table pggeocoder.address_s (
   lon float,
   code varchar(5),
   geog geography('POINT'),
+  meshcode text,
   year text
 );
 
@@ -45,6 +47,7 @@ create table pggeocoder.address_o (
   lon float,
   code varchar(12),
   geog geography('POINT'),
+  meshcode text,
   year text
 );
 
@@ -60,6 +63,7 @@ create table pggeocoder.address_c (
   lat float,
   lon float,
   geog geography('POINT'),
+  meshcode text,
   year text
 );
 
@@ -75,7 +79,8 @@ create table pggeocoder.address_g (
   go varchar(60),
   lat float,
   lon float,
-  geog geography('POINT')
+  geog geography('POINT'),
+  meshcode text
 );
 
 --

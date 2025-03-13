@@ -41,7 +41,8 @@ CREATE TYPE geores AS (
    shikuchoson character varying,
    ooaza       character varying,
    chiban      character varying,  
-   go          character varying
+   go          character varying,
+   meshcode    character varying
 );
 
 --
@@ -299,6 +300,7 @@ BEGIN
      output.code      := 4;
      output.address   := rec.todofuken;
      output.todofuken := rec.todofuken;
+     output.meshcode  := rec.meshcode;
   ELSE
      output.code    := 5;
   END IF;
@@ -373,6 +375,7 @@ BEGIN
      output.address    := rec.todofuken || rec.shikuchoson;
      output.todofuken  := rec.todofuken;
      output.shikuchoson:= rec.shikuchoson;
+     output.meshcode   := rec.meshcode;
   END IF;
 
   RETURN output;
@@ -475,7 +478,8 @@ BEGIN
      output.address    := rec.todofuken||rec.shikuchoson||rec.ooaza;
      output.todofuken  := rec.todofuken;
      output.shikuchoson:= rec.shikuchoson;
-     output.ooaza      := rec.ooaza;          
+     output.ooaza      := rec.ooaza;         
+     output.meshcode   := rec.meshcode; 
   END IF;
   
   RETURN output;
@@ -586,6 +590,7 @@ BEGIN
     output.shikuchoson:= rec.shikuchoson;
     output.ooaza      := rec.ooaza;
     output.chiban     := rec.chiban;
+    output.meshcode   := rec.meshcode;
   END IF;
   
   RETURN output;
@@ -660,6 +665,7 @@ BEGIN
     output.ooaza      := r_ooaza;
     output.chiban     := rec.chiban;
     output.go         := tmpstr3;
+    output.meshcode   := rec.meshcode;
   END IF;
   
   RETURN output;

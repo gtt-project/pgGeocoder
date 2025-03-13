@@ -9,6 +9,15 @@
 update pggeocoder.address_t set ttable = 'pggeocoder.address_c';
 
 --
+-- adding meshcode information 
+--
+update pggeocoder.address_t set meshcode = latlng2jpgridcode(lat,lon,3);
+update pggeocoder.address_s set meshcode = latlng2jpgridcode(lat,lon,3);
+update pggeocoder.address_o set meshcode = latlng2jpgridcode(lat,lon,3);
+update pggeocoder.address_c set meshcode = latlng2jpgridcode(lat,lon,3);
+update pggeocoder.address_g set meshcode = latlng2jpgridcode(lat,lon,3);
+
+--
 -- creating index for address_t
 --
 create index address_t1 on pggeocoder.address_t(todofuken);

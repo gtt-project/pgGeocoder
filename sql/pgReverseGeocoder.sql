@@ -41,7 +41,8 @@ CREATE TYPE geores AS (
    shikuchoson character varying,
    ooaza       character varying,
    chiban      character varying,  
-   go          character varying
+   go          character varying,
+   meshcode    character varying
 );
 
 --
@@ -90,7 +91,7 @@ BEGIN
   -- change, depending on the ABR dataset.
   --
   SELECT INTO record todofuken, shikuchoson, ooaza, chiban, go,
-      lon, lat,
+      meshcode,lon, lat,
       todofuken||shikuchoson||ooaza||chiban||'-'||go AS address
       FROM pggeocoder.address_g  
       WHERE st_dwithin(point, geog,mDist)
@@ -106,13 +107,14 @@ BEGIN
       output.ooaza      := record.ooaza;
       output.chiban     := record.chiban;
       output.go         := record.go;
+      output.meshcode   := record.meshcode;
       RETURN output;     
   END IF;
 
   SELECT INTO o_bdry geom FROM pggeocoder.boundary_o WHERE st_intersects(point,geom);
   IF FOUND THEN
     SELECT INTO record todofuken, shikuchoson, ooaza, chiban,
-      lon, lat,
+      meshcode,lon, lat,
       todofuken||shikuchoson||ooaza||chiban AS address,
       st_distance(point::geography,geog) AS dist 
       FROM pggeocoder.address_c 
@@ -128,11 +130,11 @@ BEGIN
       output.shikuchoson:= record.shikuchoson;
       output.ooaza      := record.ooaza;
       output.chiban     := record.chiban;
-
+      output.meshcode   := record.meshcode;
       RETURN output;
     ELSE
       SELECT INTO record todofuken, shikuchoson, ooaza, NULL as chiban,
-        lon, lat,
+        meshcode,lon, lat,
         todofuken||shikuchoson||ooaza AS address,
         st_distance(point::geography,geog) AS dist 
         FROM pggeocoder.address_o 
@@ -148,6 +150,7 @@ BEGIN
         output.shikuchoson:= record.shikuchoson;
         output.ooaza      := record.ooaza;
         output.chiban     := record.chiban;
+        output.meshcode   := record.meshcode;
         RETURN output;
       ELSE
         s_flag := TRUE;
@@ -161,7 +164,7 @@ BEGIN
     SELECT INTO s_bdry geom FROM pggeocoder.boundary_s WHERE st_intersects(point,geom);
     IF FOUND THEN
       SELECT INTO record todofuken, shikuchoson, NULL as ooaza, NULL as chiban,
-          lon, lat,
+          meshcode,lon, lat,
           todofuken||shikuchoson AS address, 0 AS dist
         FROM pggeocoder.address_s AS a
         WHERE st_intersects(a.geog, s_bdry.geom::geography);
@@ -174,6 +177,7 @@ BEGIN
         output.shikuchoson:= record.shikuchoson;
         output.ooaza      := record.ooaza;
         output.chiban     := record.chiban;
+        output.meshcode   := record.meshcode;
         RETURN output;
       END IF;
     END IF;
